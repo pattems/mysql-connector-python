@@ -47,7 +47,13 @@ try:
     from cryptography.exceptions import UnsupportedAlgorithm
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import padding
-    from cryptography.hazmat.primitives.asymmetric.types import PRIVATE_KEY_TYPES
+
+    try:
+        from cryptography.hazmat.primitives.asymmetric.types import PrivateKeyTypes
+    except ImportError:  # cryptography < 40.0
+        from cryptography.hazmat.primitives.asymmetric.types import (
+            PRIVATE_KEY_TYPES as PrivateKeyTypes,
+        )
 except ImportError:
     raise errors.ProgrammingError("Package 'cryptography' is not installed") from None
 
@@ -119,7 +125,7 @@ class MySQLOCIAuthPlugin(MySQLAuthPlugin):
         return json.dumps(auth_response, separators=(",", ":"))
 
     @staticmethod
-    def _get_private_key(key_path: str) -> PRIVATE_KEY_TYPES:
+    def _get_private_key(key_path: str) -> PrivateKeyTypes:
         """Get the private_key form the given location"""
         try:
             with open(os.path.expanduser(key_path), "rb") as key_file:
